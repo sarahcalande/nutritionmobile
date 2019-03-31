@@ -9,6 +9,7 @@ import {
   View,
 } from 'react-native';
 import { WebBrowser } from 'expo';
+const nutrientsURL = 'http://localhost:3000/nutrients';
 
 import { MonoText } from '../components/StyledText';
 
@@ -16,6 +17,30 @@ export default class HomeScreen extends React.Component {
   static navigationOptions = {
     header: null,
   };
+
+
+
+
+    function fetchNutrients() {
+      return fetch(nutrientsURL)
+        .then(r => r.json())
+        .then(r => r.forEach(nutrient => renderNutrients(nutrient)))
+        .then(descriptionEvents)
+    }
+
+    function renderNutrients(nutrient){
+let nutritiontable = document.querySelector('#nutrition-table')
+nutritiontable.innerHTML +=
+`<tr id=${nutrient.id}>
+    <td id="vitamin" data-name = "${nutrient.name}" data-description="${nutrient.description}" data-suggestion="${nutrient.suggestion}">${nutrient.name}</td>
+    <td>${nutrient.value} ${nutrient.unit}</td>
+    <td>0</td>
+    <td class="percentage" data-name = "${nutrient.name}" data-description="${nutrient.description}" data-suggestion="${nutrient.suggestion}"><span id = "${nutrient.name}1" style='background-color:#F88;display:block;width:0%'>0</span></td>
+        <td data-id="${nutrient.id}" data-description=${nutrient.description}></td>
+  </tr>`
+}
+
+
 
   render() {
     return (
