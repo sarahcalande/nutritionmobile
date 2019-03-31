@@ -40,6 +40,21 @@ nutritiontable.innerHTML +=
   </tr>`
 }
 
+function fetchIngredients() {
+  return fetch(ingredientsURL)
+    .then(r => r.json())
+    .then(r => r.forEach(ingredient => renderIngredients(ingredient)))
+}
+
+function renderIngredients(ingredient) {
+    let tr = document.createElement('tr');
+    tr.dataset.id = ingredient.id;
+    tr.innerHTML = `<td>${ingredient.name}</td><td>${ingredient.measure}</td><td><input type="number" min=1 max=100></td><td><button>Add</button></td>`;
+    myTable.append(tr);
+  };
+
+
+
 
 
   render() {
