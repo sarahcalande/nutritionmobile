@@ -20,15 +20,14 @@ export default class HomeScreen extends React.Component {
 
 
 
-
-    function fetchNutrients() {
+componentDidMount() {
       return fetch(nutrientsURL)
         .then(r => r.json())
         .then(r => r.forEach(nutrient => renderNutrients(nutrient)))
         .then(descriptionEvents)
     }
 
-    function renderNutrients(nutrient){
+renderNutrients(nutrient){
 let nutritiontable = document.querySelector('#nutrition-table')
 nutritiontable.innerHTML +=
 `<tr id=${nutrient.id}>
@@ -40,13 +39,13 @@ nutritiontable.innerHTML +=
   </tr>`
 }
 
-function fetchIngredients() {
+fetchIngredients() {
   return fetch(ingredientsURL)
     .then(r => r.json())
     .then(r => r.forEach(ingredient => renderIngredients(ingredient)))
 }
 
-function renderIngredients(ingredient) {
+renderIngredients(ingredient) {
     let tr = document.createElement('tr');
     tr.dataset.id = ingredient.id;
     tr.innerHTML = `<td>${ingredient.name}</td><td>${ingredient.measure}</td><td><input type="number" min=1 max=100></td><td><button>Add</button></td>`;
@@ -54,11 +53,15 @@ function renderIngredients(ingredient) {
   };
 
 
+
+
+  search(){
   //SEARCH!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+  let mySearch = document.getElementById("mySearch");
+
     mySearch.addEventListener('keyup', () => {
       let filter, table, tr, td, i;
-      // input = document.getElementById("mySearch");
-      filter = mySearch.value.toUpperCase();
+            filter = mySearch.value.toUpperCase();
       table = document.getElementById("myTable");
       tr = table.getElementsByTagName("tr");
       for (i = 0; i < tr.length; i++) {
@@ -72,10 +75,12 @@ function renderIngredients(ingredient) {
         }
       }
     })
+  }
 
 
     //ADDING TO NUTRITIONAL PROFILE
 
+    addToProfile(){
       document.querySelector('#myTable').addEventListener('click', () => {
         if (event.target.nodeName === 'BUTTON') {
           let li = document.createElement('li')
@@ -93,9 +98,30 @@ function renderIngredients(ingredient) {
           }
         }
       });
-      var myChart;
+    }
 
-        function addNutritionalProfile(id, quantity) {
+
+    chartNutrients(){
+                ////////////////////////////////////////////////////////////////////
+                //DONUT CHART
+
+                let protein = document.querySelector("#Protein1").innerText
+                let fat = document.getElementById('Total lipid (fat)1').innerText
+                let carbs = document.getElementById('Carbohydrate1').innerText
+                canvas = document.getElementById("doughnut-chart")
+                // canvas.parentElement.replaceChild('<canvas id="doughnut-chart" width="230" height="230" style="display: block; width: 230px; height: 230px;">', canvas)
+                // var newcanvas = document.getElementById('doughnut-chart')
+                // let nutprof = document.getElementById("nutrtional-profile")
+                // nutprof.children[0]
+                // console.log(canvas)
+                canvas.className = "unhide-chart chartjs-render-monitor"
+
+                if (myChart) {
+myChart.destroy();
+}
+    }
+      
+      addNutritionalProfile(id, quantity) {
           fetch(`${ingredientsURL}/${id}`)
             .then(r => r.json())
             .then(r => {
@@ -131,25 +157,8 @@ function renderIngredients(ingredient) {
                 }
 
 
-                ////////////////////////////////////////////////////////////////////
-                //DONUT CHART
-
-                          let protein = document.querySelector("#Protein1").innerText
-                          let fat = document.getElementById('Total lipid (fat)1').innerText
-                          let carbs = document.getElementById('Carbohydrate1').innerText
-                          canvas = document.getElementById("doughnut-chart")
-                          // canvas.parentElement.replaceChild('<canvas id="doughnut-chart" width="230" height="230" style="display: block; width: 230px; height: 230px;">', canvas)
-                          // var newcanvas = document.getElementById('doughnut-chart')
-                          // let nutprof = document.getElementById("nutrtional-profile")
-                          // nutprof.children[0]
-                          // console.log(canvas)
-                          canvas.className = "unhide-chart chartjs-render-monitor"
-
-                          if (myChart) {
-         myChart.destroy();
-       }
-
-                              myChart = new Chart(canvas, {
+                createChart(){
+                              let myChart = new Chart(canvas, {
                                 type: 'doughnut',
                                 data: {
                                   labels: ["Fat", "Carbohydrates", "Protein"],
@@ -173,6 +182,7 @@ function renderIngredients(ingredient) {
                                 },
 
                                   })
+                                }
 
 
 
@@ -190,9 +200,10 @@ function renderIngredients(ingredient) {
         }
 
 
-
+        deleteFood(){
         //DELETING THINGS IN NUTRITIONAL PROFILE
-          consumedItems.addEventListener('click', () => {
+        let consumedItems = document.querySelector('consumedItems');
+          consumedItems.addEventListener(onClick () => {
             if (event.target.nodeName === 'BUTTON') {
               let id = event.target.parentElement.dataset.id;
               let quantity = event.target.previousSibling.previousSibling.innerText
@@ -201,11 +212,12 @@ function renderIngredients(ingredient) {
 
               removeNutritionalProfile(id, quantity)
             }
-          })
+          });
+        }
 
 
 
-            function removeNutritionalProfile(id, quantity) {
+            removeNutritionalProfile(id, quantity) {
               fetch(`${ingredientsURL}/${id}`)
                 .then(r => r.json())
                 .then(r => {
@@ -284,8 +296,7 @@ function renderIngredients(ingredient) {
   //SHOWING INFO ABOUT EACH NUTRIENT
 
 
-function descriptionEvents(){
-
+descriptionEvents(){
 //SUGGESTIONS PROMPT
     let percent = document.querySelectorAll('.percentage')
         let inner = document.querySelector('#suggestioninner')
@@ -311,9 +322,6 @@ function descriptionEvents(){
 
     //make suggestions for food w/ highest content based on what was clicked
 
-
-
-
 //CUSTOM FOOD PROMPT FORM
 let addcustom = document.querySelector('#lookingfor')
 addcustom.addEventListener('click', promptCustom)
@@ -332,7 +340,7 @@ function promptCustom(e){
 let modaldiv = document.querySelector('#promptmodal')
 modaldiv.addEventListener('submit', submitfunction)
 
-function submitfunction(e){
+submitfunction(e){
       e.preventDefault()
 
 
@@ -484,8 +492,8 @@ function submitfunction(e){
       ]
     }
 
-
-    fetch('http://localhost:3000/ingredients', {
+componentDidMount(){
+    return fetch('http://localhost:3000/ingredients', {
       method: "POST",
       headers:  {
     'Content-Type': 'application/json; charset=utf-8'
@@ -501,6 +509,7 @@ function submitfunction(e){
       <td><button>Add</button></td>`;
       myTable.append(tr);}
     )
+}
 
 
 }
@@ -524,14 +533,7 @@ $('#descriptionmodal')
 
 
 }
-
-
-
-
-
-
-
-  render() {
+  render(){
     return (
       <View style={styles.container}>
         <ScrollView style={styles.container} contentContainerStyle={styles.contentContainer}>
